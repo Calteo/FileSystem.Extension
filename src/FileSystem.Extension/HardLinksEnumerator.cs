@@ -12,14 +12,16 @@ namespace FileSystem.Extension
 {
     class HardLinksEnumerator : IEnumerator<string>
     {
-        public HardLinksEnumerator(string filename)
+        internal HardLinksEnumerator(HardLinks hardLinks)
         {
-            Filename = filename;
-            Drive = Path.GetPathRoot(Path.GetFullPath(filename)).TrimEnd('\\');
+            HardLinks = hardLinks;
+            Filename = Path.GetFullPath(HardLinks.Filename);
+            Drive = Path.GetPathRoot(Filename).TrimEnd('\\');
         }
 
-        public string Filename { get; private set; }
-        public string Drive { get; private set; }
+        private HardLinks HardLinks { get; set; }
+        private string Filename { get; set; }
+        private string Drive { get; set; }
 
         private StringBuilder _current;
         private IntPtr _handle;
@@ -76,6 +78,9 @@ namespace FileSystem.Extension
                 
             }
             _current.Insert(0, Drive);
+            if (!HardLinks.IncludeSelf && string.Compare(Filename, _current.ToString(), true) == 0)
+                return MoveNext();
+
             return true;
         }
 

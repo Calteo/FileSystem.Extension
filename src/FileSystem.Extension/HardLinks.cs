@@ -9,16 +9,18 @@ namespace FileSystem.Extension
 {
     class HardLinks : IEnumerable<string>
     {
-        public HardLinks(string filename)
+        public HardLinks(string filename, bool includeSelf)
         {
             Filename = filename;
+            IncludeSelf = includeSelf;
         }
 
         public string Filename { get; private set; }
+        public bool IncludeSelf { get; private set; }
 
         public IEnumerator<string> GetEnumerator()
         {
-            return new HardLinksEnumerator(Filename);
+            return new HardLinksEnumerator(this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

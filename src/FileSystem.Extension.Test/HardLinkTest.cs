@@ -129,5 +129,62 @@ namespace FileSystem.Extension.Test
             Assert.IsTrue(files.Contains(filenameExisiting), "source file missing");
             Assert.IsTrue(files.Contains(filename), "target file missing");
         }
+
+        [TestMethod]
+        public void TestGet()
+        {
+            // Arrange
+            const string filenameExisiting = "original.txt";
+            const string filename = "hardlink.txt";
+
+            using (var writer = new StreamWriter(filenameExisiting, false, Encoding.Default))
+            {
+                writer.WriteLine("test file for hardlink test");
+            }
+
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            HardLink.Create(filename, filenameExisiting);
+
+            // Act
+            var files = HardLink.GetLinks(filenameExisiting)
+                .Select(Path.GetFileName)
+                .ToArray();
+
+            // Assert
+            Assert.AreEqual(files.Length, 2, "number of files not correct");
+            Assert.IsTrue(files.Contains(filenameExisiting), "source file missing");
+            Assert.IsTrue(files.Contains(filename), "target file missing");
+        }
+
+
+
+        [TestMethod]
+        public void TestEnumerateWithOutSelf()
+        {
+            // Arrange
+            const string filenameExisiting = "original.txt";
+            const string filename = "hardlink.txt";
+
+            using (var writer = new StreamWriter(filenameExisiting, false, Encoding.Default))
+            {
+                writer.WriteLine("test file for hardlink test");
+            }
+
+            if (File.Exists(filename))
+                File.Delete(filename);
+
+            HardLink.Create(filename, filenameExisiting);
+
+            // Act
+            var files = HardLink.Enumerate(filenameExisiting, false)
+                .Select(Path.GetFileName)
+                .ToArray();
+
+            // Assert
+            Assert.AreEqual(files.Length, 1, "number of files not correct");
+            Assert.IsTrue(files.Contains(filename), "target file missing");
+        }
     }
 }
